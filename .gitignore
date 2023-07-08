@@ -1,0 +1,8 @@
+/data/fine_tune_data/NewDataSet/
+/data/fine_tune_data/OldDataSet/
+/data/fine_tune_data/assert_test.csv
+/data/fine_tune_data/assert_train.csv
+/data/fine_tune_data/assert_val.csv
+/zeroshot/data/fine_tune_data/assert_test.csv
+/zeroshot/data/fine_tune_data/assert_train.csv
+/zeroshot/data/fine_tune_data/assert_val.csv
