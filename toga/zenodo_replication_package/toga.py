@@ -12,6 +12,7 @@ pd.set_option("display.max_columns", None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', None)
 
+
 def main():
     random.seed(0)
 
@@ -36,14 +37,15 @@ def main():
     print('preparing assertion model inputs')
     vocab = np.load('data/evo_vocab.npy', allow_pickle=True).item()
 
-    method_test_assert_data, idxs = assertion_data.get_model_inputs(tests, methods, vocab,metadata)
-    assert_inputs_df = pd.DataFrame(method_test_assert_data, columns=["project","bug_num","test_name", "test_prefix", "source"])
+    method_test_assert_data, idxs = assertion_data.get_model_inputs(tests, methods, vocab, metadata)
+    assert_inputs_df = pd.DataFrame(method_test_assert_data,
+                                    columns=["project", "bug_num", "test_name", "test_prefix", "source", "target"])
     assert_input_file = os.path.join(base_dir, 'assert_model_inputs.csv')
     assert_inputs_df.to_csv(assert_input_file)
 
     sp.run(f'bash ./model/{args.model_name}/run_eval.sh {assert_input_file}'.split(), env=os.environ.copy())
 
-    assert_pred_file = os.path.join(base_dir, "preds","assertion_preds.csv")
+    assert_pred_file = os.path.join(base_dir, "preds", "assertion_preds.csv")
     result_df = pd.read_csv(assert_pred_file)
     except_preds = [0] * len(result_df)
     result_df['except_preds'] = except_preds

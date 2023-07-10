@@ -60,19 +60,19 @@ def is_string(string):
 
 def get_args(assertion):
     # strip outer parens
-    args_str = assertion[assertion.find('(')+1:assertion.rfind(')')]
+    args_str = assertion[assertion.find('(') + 1:assertion.rfind(')')]
 
     # split on nonstring ,
     in_str = False
     args, prev = [], 0
     for i, c in enumerate(args_str):
         if c == '"':
-            if not (i >= 1 and args_str[i-1] != '\\'):
+            if not (i >= 1 and args_str[i - 1] != '\\'):
                 in_str = not in_str
         if c == ',':
-            args += [ args_str[prev:i] ]
-            prev = i+1
-    args += [ args_str[prev:].strip() ]
+            args += [args_str[prev:i]]
+            prev = i + 1
+    args += [args_str[prev:].strip()]
 
     return args
 
@@ -86,7 +86,6 @@ def parser_type_to_java_type(t):
         t = t.value if "value" in dir(t) else t.member
     except AttributeError:
         return None
-
 
     if t == "true" or t == "false":
         return bool
@@ -111,28 +110,26 @@ def pretty_type(tree, full_type=""):
 
 
 def get_type_info_evo(assertion, focal_method, test_method, vocab=vocab):
-    
     try:
         tokens = javalang.tokenizer.tokenize(focal_method)
         parser = javalang.parser.Parser(tokens)
         focal_method_node = parser.parse_member_declaration()
-    except (javalang.parser.JavaSyntaxError, TypeError, IndexError, StopIteration,\
+    except (javalang.parser.JavaSyntaxError, TypeError, IndexError, StopIteration, \
             javalang.tokenizer.LexerError):
         errs["cant-parse"] += 1
         return None
 
-    start = test_method.find("\"<AssertPlaceHolder>\" ;") 
+    start = test_method.find("\"<AssertPlaceHolder>\" ;")
     clean_test = test_method[0:start] + " }"
-    
+
     tokens = javalang.tokenizer.tokenize(clean_test)
     parser = javalang.parser.Parser(tokens)
     try:
         test_method_node = parser.parse_member_declaration()
-    except (javalang.parser.JavaSyntaxError, TypeError, IndexError, StopIteration,\
+    except (javalang.parser.JavaSyntaxError, TypeError, IndexError, StopIteration, \
             javalang.parser.LexerError):
         errs["cant-parse4"] += 1
         return None
-
 
     assert_args = get_args(assertion)
 
@@ -194,13 +191,13 @@ def get_type_info_evo(assertion, focal_method, test_method, vocab=vocab):
         elif isinstance(node, javalang.tree.Literal):
             all_var_types += [parser_type_to_java_type(node.value)]
             all_vars += [node.value]
-    
+
     same_type_vars = []
     for var, t in zip(all_vars, all_var_types):
         if t == _type:
             same_type_vars += [var]
 
-    #PARSE ASSERTION
+    # PARSE ASSERTION
     try:
         tokens = javalang.tokenizer.tokenize(assertion)
         parser = javalang.parser.Parser(tokens)
@@ -208,17 +205,18 @@ def get_type_info_evo(assertion, focal_method, test_method, vocab=vocab):
     except javalang.parser.JavaSyntaxError:
         errs["cant-parse5"] += 1
         return None
-    
+
     arg_ind = 0 if len(assertion_obj.arguments) == 1 else 1
     return _type, arg_ind, len(assertion_obj.arguments), same_type_vars
-    
+
+
 def assertion_to_arg(assertion, arg_num, total_args):
     m = arg_re_generic.search(assertion)
 
     g = m.group(1)
     args = g.split(",")
     try:
-        assert len(args) == total_args and len(args) > arg_num 
+        assert len(args) == total_args and len(args) > arg_num
     except AssertionError as e:
         if total_args == 1:
             return g
@@ -228,11 +226,12 @@ def assertion_to_arg(assertion, arg_num, total_args):
 
     return args[arg_num]
 
+
 def gen_variants(_type, arg, matching_type_vars, vocab=vocab):
     out = []
-    values = matching_type_vars 
+    values = matching_type_vars
     arg = arg.strip()
-    if _type in vocab: 
+    if _type in vocab:
         top_values = vocab[_type]
         values = top_values + values
 
@@ -242,16 +241,19 @@ def gen_variants(_type, arg, matching_type_vars, vocab=vocab):
         out += ["assertEquals({}, {})".format(var, arg)]
 
     if _type == bool:
-        out +=  ["assertTrue({})".format(arg), "assertFalse({})".format(arg)]
+        out += ["assertTrue({})".format(arg), "assertFalse({})".format(arg)]
     elif not _type == int and not _type == float:
         out += ["assertNotNull({})".format(arg)]
-    
+
     return list(set(out))
 
 
-def separate_assertions(tests, focal_methods):
-    idxs, aligned_tests, aligned_methods, assertions = [], [], [], []
-    for i, (test_method, fm) in enumerate(zip(tests, focal_methods)):
+def separate_assertions(tests, focal_methods, metadata):
+    idxs, aligned_tests, aligned_methods, assertions, aligned_projects, aligned_bug_nums, aligned_test_names = [], [], [], [], [], [], []
+    projects = metadata['project']
+    bug_nums = metadata['bug_num']
+    test_names = metadata['test_name']
+    for i, (test_method, fm, p, bn, tn) in enumerate(zip(tests, focal_methods, projects, bug_nums, test_names)):
         m = assert_re.search(test_method)
         if not m:
             continue
@@ -268,20 +270,21 @@ def separate_assertions(tests, focal_methods):
         aligned_tests += [clean_test]
         aligned_methods += [fm]
         assertions += [assertion]
-
-    return aligned_tests, aligned_methods, assertions, idxs
+        aligned_projects += [p]
+        aligned_bug_nums += [bn]
+        aligned_test_names += [tn]
+    return aligned_tests, aligned_methods, assertions, idxs, aligned_projects, aligned_bug_nums, aligned_test_names
 
 
 def get_model_inputs(raw_tests, raw_methods, vocab, metadata):
-
     method_test_assert_data = []
 
-    tests, methods, assertions, idxs = separate_assertions(raw_tests, raw_methods)
-    projects = metadata['project']
-    bug_nums = metadata['bug_num']
-    test_names = metadata['test_name']
+    tests, methods, assertions, idxs, projects, bug_nums, test_names = separate_assertions(raw_tests, raw_methods,
+                                                                                           metadata)
     aligned_idxs, template_matches = [], []
-    for project,bug_num,test_name,test_method, focal_method, assertion, idx in tzip(projects,bug_nums,test_names,tests, methods, assertions, idxs):
+    for project, bug_num, test_name, test_method, focal_method, assertion, idx in tzip(projects, bug_nums, test_names,
+                                                                                       tests, methods, assertions,
+                                                                                       idxs):
 
         template_matches += [False]
 
@@ -292,10 +295,10 @@ def get_model_inputs(raw_tests, raw_methods, vocab, metadata):
         # NORMALIZE ASSERTION 
         m = neg_re.match(assertion)
         if m:
-            assertion = 'assertEquals('+m[1]+m[2]
+            assertion = 'assertEquals(' + m[1] + m[2]
         m = long_re.match(assertion)
         if m:
-            assertion = 'assertEquals('+m[1]+m[2]
+            assertion = 'assertEquals(' + m[1] + m[2]
 
         m = equals_bool_re.match(assertion)
         if m:
@@ -306,24 +309,23 @@ def get_model_inputs(raw_tests, raw_methods, vocab, metadata):
 
         out = get_type_info_evo(assertion, focal_method, test_method, vocab=vocab)
 
-        if not out: 
+        if not out:
             continue
 
         _type, arg_num, total_args, matching_type_vars = out
 
         if _type == float:
             continue
-        
+
         try:
             arg_txt = assertion_to_arg(assertion, arg_num, total_args)
         except AssertionError:
             continue
-        
+
         try:
             template_asserts = gen_variants(_type, arg_txt, matching_type_vars, vocab=vocab)
         except Exception as e:
             raise e
-
 
         focal_method_clean = clean(focal_method)
         test_method_clean = clean(test_method)
@@ -345,16 +347,15 @@ def get_model_inputs(raw_tests, raw_methods, vocab, metadata):
 
         if assertion_clean not in template_asserts:
             errs['non_template_assert'] += 1
-            
+
         if not focal_method_clean:
             errs['unable_to_find_focal_method'] += 1
             continue
 
         samples = []
-        for i in range(len(template_asserts)):
-            samples += [(project,bug_num,test_name,
-                             test_method.replace('\"<AssertPlaceHolder>\" ;',''),test_method_clean+" \"<FocalMethod>\" "+focal_method_clean)]
-
+        samples += [(project, bug_num, test_name,
+                     test_method.replace('\"<AssertPlaceHolder>\" ;', ''),
+                     test_method_clean + " \"<FocalMethod>\" " + focal_method_clean,assertion_clean)]
         method_test_assert_data += samples
         for i in range(len(samples)):
             aligned_idxs += [idx]

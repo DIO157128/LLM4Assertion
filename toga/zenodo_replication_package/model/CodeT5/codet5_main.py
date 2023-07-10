@@ -62,7 +62,16 @@ def clean_tokens(tokens):
     tokens = tokens.strip()
     return tokens
 
+def compare_strings_ignore_whitespace(str1, str2):
+    # 移除字符串中的空格
+    str1_without_space = re.sub(r'\s', '', str1)
+    str2_without_space = re.sub(r'\s', '', str2)
 
+    # 使用re.match()函数进行匹配比较
+    if re.match(f'^{re.escape(str1_without_space)}$', str2_without_space):
+        return True
+    else:
+        return False
 
 def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
     # build dataloader
@@ -92,7 +101,17 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
 
     df = pd.read_csv(args.test_data_file)
     df['assert_pred'] = raw_predictions
-    df.to_csv(os.path.join(args.result_output_dir, 'assertion_preds.csv'), index=False)
+    targets = df['target']
+    match = []
+    for p,t in zip(raw_predictions,targets):
+        if compare_strings_ignore_whitespace(p,t):
+            match.append(1)
+        else:
+            match.append(0)
+    if not os.path.exists(args.result_output_dir):
+        os.makedirs(args.result_output_dir)
+    df['match'] = match
+    df.drop('source',axis=1).to_csv(os.path.join(args.result_output_dir, 'assertion_preds.csv'), index=False)
 
 
 def main():
@@ -186,12 +205,11 @@ def main():
     model.to(device)
     logger.info("Training/evaluation parameters %s", args)
     # Training
-    if args.do_test:
-        checkpoint_prefix = f'checkpoint-best-loss/{args.model_name}'
-        output_dir = os.path.join(args.output_dir, '{}'.format(checkpoint_prefix))
-        model.load_state_dict(torch.load(output_dir, map_location=args.device))
-        test_dataset = TextDataset(tokenizer, args, file_type='test')
-        test(args, model, tokenizer, test_dataset, best_threshold=0.5)
+    checkpoint_prefix = f'checkpoint-best-loss/{args.model_name}'
+    output_dir = os.path.join(args.output_dir, '{}'.format(checkpoint_prefix))
+    model.load_state_dict(torch.load(output_dir, map_location=args.device))
+    test_dataset = TextDataset(tokenizer, args)
+    test(args, model, tokenizer, test_dataset, best_threshold=0.5)
 
 
 if __name__ == "__main__":
