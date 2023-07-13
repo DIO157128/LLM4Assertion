@@ -12,5 +12,5 @@ python model/CodeT5/codet5_main.py \
 --decoder_block_size 256 \
 --eval_batch_size 8 \
 --num_beams 1 \
---result_output_dir ${base_dir}/preds/ \
+--result_output_dir ${base_dir}/CodeT5_preds/ \
 

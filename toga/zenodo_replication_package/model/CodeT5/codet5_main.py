@@ -10,7 +10,6 @@ from transformers import (AdamW, get_linear_schedule_with_warmup,
                           T5ForConditionalGeneration, RobertaTokenizer, T5Config)
 from tqdm import tqdm
 import pandas as pd
-from torch.utils.tensorboard import SummaryWriter
 
 cpu_cont = 16
 logger = logging.getLogger(__name__)

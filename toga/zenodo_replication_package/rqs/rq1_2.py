@@ -18,7 +18,7 @@ def read_result_df(data_dir: str, src: str, idx: int, system: str, result_dir: s
     print(result_file)
     result_df = pd.read_csv(result_file)
     # deduplicate
-    result_df.drop_duplicates(subset=["project", "bug_num", "focal_method", "docstring", "test_prefix"])
+    result_df.drop_duplicates(subset=["project", "bug_num",  "test_prefix"])
     return result_df
 
 

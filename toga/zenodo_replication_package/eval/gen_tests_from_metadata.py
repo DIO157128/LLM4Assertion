@@ -49,14 +49,14 @@ def bool_assert_to_equals(assertion):
 def insert_assertion(method, assertion):
     lines = method.strip().split("\n")
 
-    if not 'assert' in assertion:
-        logging.error('ERROR invalid assertion pred:')
-        logging.error(method)
-        logging.error(assertion)
-        sys.exit(0)
-
-    if 'coreOperationGreaterThanOrEqual0' in method:
-        logging.warning(lines)
+    # if not 'assert' or 'Assert' in assertion:
+    #     logging.error('ERROR invalid assertion pred:')
+    #     logging.error(method)
+    #     logging.error(assertion)
+    #     sys.exit(0)
+    #
+    # if 'coreOperationGreaterThanOrEqual0' in method:
+    #     logging.warning(lines)
 
 
     return "\n".join(lines + ["      " + assertion+';'] + ["}"])
@@ -204,7 +204,7 @@ if __name__=='__main__':
 
     gen_tests = []
     for row in metadata_df.itertuples():
-        test = generator.generate(row.test_prefix, except_pred=row.except_pred, assert_pred=row.assert_pred)
+        test = generator.generate(row.test_prefix, except_pred=row.except_preds, assert_pred=row.assert_pred)
         gen_tests += [test]
 
     test_ids = defaultdict(int)

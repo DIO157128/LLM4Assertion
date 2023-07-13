@@ -11,5 +11,5 @@ python model/CodeBERT/codebert_main.py \
 --decoder_block_size 256 \
 --eval_batch_size 8 \
 --beam_size 1 \
---result_output_dir ${base_dir}/preds/ \
+--result_output_dir ${base_dir}/CodeBERT_preds/ \
 

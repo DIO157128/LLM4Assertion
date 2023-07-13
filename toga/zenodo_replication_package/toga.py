@@ -45,13 +45,13 @@ def main():
 
     sp.run(f'bash ./model/{args.model_name}/run_eval.sh {assert_input_file}'.split(), env=os.environ.copy())
 
-    assert_pred_file = os.path.join(base_dir, "preds", "assertion_preds.csv")
+    assert_pred_file = os.path.join(base_dir, "{}_preds".format(args.model_name), "assertion_preds.csv")
     result_df = pd.read_csv(assert_pred_file)
     except_preds = [0] * len(result_df)
     result_df['except_preds'] = except_preds
 
     # write oracle predictions
-    pred_file = os.path.join(base_dir, 'oracle_preds.csv')
+    pred_file = os.path.join(base_dir, '{}_oracle_preds.csv'.format(args.model_name))
     result_df.to_csv(pred_file)
 
     print(f'wrote oracle predictions to {pred_file}')
