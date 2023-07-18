@@ -22,8 +22,8 @@ if __name__ == "__main__":
     assert match
     method = match.group(1)
     print(f"System: {method}")
-    generator = TogaGenerator() if method == "toga" else NaiveGenerator()
-    oracle_pred_file = "{}_oracle_preds.csv".format(args.model_name) if method == "toga" else "naive_oracle_preds.csv"
+    generator = TogaGenerator()
+    oracle_pred_file = "{}_oracle_preds.csv".format(args.model_name)
 
     inputs = pd.read_csv(os.path.join(work_dir, "assert_model_inputs.csv")).fillna("")
     metas = pd.read_csv(os.path.join(work_dir, "assert_model_inputs.csv")).fillna("")
