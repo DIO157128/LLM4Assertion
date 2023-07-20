@@ -8,7 +8,7 @@ import os
 from collections import OrderedDict, defaultdict
 from typing import Dict
 
-import fire
+import argparse
 
 from .metrics import *
 
@@ -31,6 +31,9 @@ def cal_one_result(data_dir: str, src: str, idx: int, system: str, result_dir: s
 
 
 def cal_result(data_dir="data"):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('model_name')
+    args = parser.parse_args()
     scorers = OrderedDict({
         "BugFound": BugFound(),
         "FPRate": FPR(),
@@ -45,7 +48,7 @@ def cal_result(data_dir="data"):
         for result_dir in ["results", "merged_results"]:
             exp_results = []
             for i in range(1, 11):
-                result = cal_one_result(data_dir, src, i, "toga", result_dir, scorers)
+                result = cal_one_result(data_dir, src, i, args.model_name, result_dir, scorers)
                 exp_results.append(result)
             assert len(exp_results) == 10
             src_df = pd.DataFrame(exp_results)
@@ -55,10 +58,8 @@ def cal_result(data_dir="data"):
     df = pd.DataFrame(dfs, index=indexes)
     print(df)
     print("dump result")
-    df.to_csv('rq1_2.csv')
+    df.to_csv('{}_rq1_2.csv'.format(args.model_name))
 
 
 if __name__ == "__main__":
-    fire.Fire({
-        "cal_result": cal_result,
-    })
+    cal_result()
