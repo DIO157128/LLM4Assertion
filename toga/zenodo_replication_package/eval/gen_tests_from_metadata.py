@@ -204,7 +204,7 @@ if __name__=='__main__':
 
     gen_tests = []
     for row in metadata_df.itertuples():
-        test = generator.generate(row.test_prefix, except_pred=row.except_preds, assert_pred=row.assert_pred)
+        test = generator.generate(row.test_prefix, except_pred=row.except_pred, assert_pred=row.assert_pred)
         gen_tests += [test]
 
     test_ids = defaultdict(int)

@@ -41,7 +41,7 @@ bsah rq0.sh
 # run experiments for rq1 and rq2 
 bash run_rq1_2.sh
 # obtain the results
-python rqs.rq1_2 CodeT5
+python -m rqs.rq1_2 CodeT5
 
 # run experiments for rq3
 bash run_rq3.sh

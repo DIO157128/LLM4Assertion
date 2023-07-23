@@ -1,3 +1,4 @@
+
 import argparse, csv, os, random
 import pandas as pd
 import subprocess as sp
@@ -48,7 +49,7 @@ def main():
     assert_pred_file = os.path.join(base_dir, "{}_preds".format(args.model_name), "assertion_preds.csv")
     result_df = pd.read_csv(assert_pred_file)
     except_preds = [0] * len(result_df)
-    result_df['except_preds'] = except_preds
+    result_df['except_pred'] = except_preds
 
     # write oracle predictions
     pred_file = os.path.join(base_dir, '{}_oracle_preds.csv'.format(args.model_name))

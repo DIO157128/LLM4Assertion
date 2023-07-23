@@ -23,5 +23,7 @@ for i in `seq 1 ${TOTAL}`;do
     python toga.py ${BUGGY_TEST_DIR}/${i}/inputs.csv ${BUGGY_TEST_DIR}/${i}/meta.csv CodeBERT
 done
 
-
+for i in `seq 1 ${TOTAL}`;do
+    python naive.py ${BUGGY_TEST_DIR}/${i}/inputs.csv ${BUGGY_TEST_DIR}/${i}/meta.csv CodeBERT
+done
 date
