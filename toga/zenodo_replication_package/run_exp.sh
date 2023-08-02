@@ -6,13 +6,13 @@ DATA_DIR=$1
 REG_DIR=$2
 N_JOBS=$3
 GENERATOR=$4
+MODEL_NAME=$5
 
 if [ ! -d ${DATA_DIR} ]
 then
     mkdir ${DATA_DIR}
 fi
 
-MODEL_NAME=CodeBERT
 OUT_DIR=${DATA_DIR}/${MODEL_NAME}_generated
 D4J_PATH=/data/swf/defects4j/framework/projects
 

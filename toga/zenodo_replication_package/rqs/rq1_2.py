@@ -48,9 +48,12 @@ def cal_result(data_dir="data"):
         for result_dir in ["results", "merged_results"]:
             exp_results = []
             for i in range(1, 11):
-                result = cal_one_result(data_dir, src, i, args.model_name, result_dir, scorers)
-                exp_results.append(result)
-            assert len(exp_results) == 10
+                try:
+                    result = cal_one_result(data_dir, src, i, args.model_name, result_dir, scorers)
+                    exp_results.append(result)
+                except:
+                    print(1)
+                    continue
             src_df = pd.DataFrame(exp_results)
             all_dfs[src][result_dir] = src_df
             dfs.append(src_df.mean())

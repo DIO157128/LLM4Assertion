@@ -9,13 +9,9 @@ def run_command(command, output_file):
 if __name__ == '__main__':
 
     commands = [
-        'python toga.py data/evosuite_buggy_regression_all/1/inputs.csv data/evosuite_buggy_tests/1/meta.csv',
-        'python toga.py data/evosuite_buggy_regression_all/2/inputs.csv data/evosuite_buggy_tests/2/meta.csv',
-        'python toga.py data/evosuite_buggy_regression_all/3/inputs.csv data/evosuite_buggy_tests/3/meta.csv',
-        'python toga.py data/evosuite_buggy_regression_all/4/inputs.csv data/evosuite_buggy_tests/4/meta.csv',
-        'python toga.py data/evosuite_buggy_regression_all/5/inputs.csv data/evosuite_buggy_tests/5/meta.csv'
-    ]
-
+            ]
+    for i in (6,11):
+        commands.append('rm -rf /data/swf/zenodo_replication_package_new/data/evosuite_buggy_tests/{}/naive_generated'.format(i))
 
     max_concurrent_processes = 5
 

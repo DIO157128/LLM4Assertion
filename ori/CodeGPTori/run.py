@@ -21,23 +21,18 @@ using a masked language modeling (MLM) loss.
 
 from __future__ import absolute_import
 import os
-import sys
 import bleu
-import pickle
 import torch
-import json
 import random
 import logging
 import argparse
 import numpy as np
 from io import open
-from itertools import cycle
-import torch.nn as nn
 from model import Seq2Seq
-from tqdm import tqdm, trange
-from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler, TensorDataset
+from tqdm import tqdm
+from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
-from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
+from transformers import (AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaModel, RobertaTokenizer,
                           GPT2Config, GPT2LMHeadModel, GPT2Tokenizer)
 

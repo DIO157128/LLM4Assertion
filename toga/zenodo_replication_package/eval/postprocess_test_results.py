@@ -29,7 +29,7 @@ if __name__ == "__main__":
     metas = pd.read_csv(os.path.join(work_dir, "assert_model_inputs.csv")).fillna("")
     oracle_preds = pd.read_csv(os.path.join(work_dir, oracle_pred_file)).fillna("")
     oracle_preds = oracle_preds[
-        "test_prefix,except_preds,assert_pred".split(',')]
+        "test_prefix,except_pred,assert_pred".split(',')]
     assert len(inputs) == len(metas)
 
     # merge the idx,test id and unique_test_name
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         if type(row.test_prefix) == float:
             test_case = ""
         else:
-            test_case = generator.generate(row.test_prefix, except_pred=row.except_preds, assert_pred=row.assert_pred)
+            test_case = generator.generate(row.test_prefix, except_pred=row.except_pred, assert_pred=row.assert_pred)
         gen_tests.append(test_case)
     full_test_data.insert(7, "generated_test", gen_tests)
     old_length = len(full_test_data)

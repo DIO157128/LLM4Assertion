@@ -1,8 +1,11 @@
-/data/fine_tune_data/NewDataSet/
-/data/fine_tune_data/OldDataSet/
-/data/fine_tune_data/assert_test.csv
-/data/fine_tune_data/assert_train.csv
-/data/fine_tune_data/assert_val.csv
+/ori/data/fine_tune_data/NewDataSet/
+/ori/data/fine_tune_data/OldDataSet/
+/ori/data/fine_tune_data/assert_test.csv
+/ori/data/fine_tune_data/assert_train.csv
+/ori/data/fine_tune_data/assert_val.csv
 /zeroshot/data/fine_tune_data/assert_test.csv
 /zeroshot/data/fine_tune_data/assert_train.csv
 /zeroshot/data/fine_tune_data/assert_val.csv
+/mask/data/fine_tune_data/assert_mask_new_test.csv
+/mask/data/fine_tune_data/assert_mask_new_train.csv
+/mask/data/fine_tune_data/assert_mask_new_val.csv

@@ -10,7 +10,6 @@ from transformers import (AdamW, get_linear_schedule_with_warmup,
                           T5ForConditionalGeneration, RobertaTokenizer, T5Config)
 from tqdm import tqdm
 import pandas as pd
-from torch.utils.tensorboard import SummaryWriter
 
 cpu_cont = 16
 logger = logging.getLogger(__name__)
@@ -122,7 +121,6 @@ def train(args, train_dataset, model, tokenizer, eval_dataset):
     best_loss = 100
     stop = 0
     writer_path = "tb/codet5_training_loss"
-    writer = SummaryWriter(writer_path)
 
     model.zero_grad()
 
