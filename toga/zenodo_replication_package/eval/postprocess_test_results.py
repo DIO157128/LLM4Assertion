@@ -66,8 +66,8 @@ if __name__ == "__main__":
     full_test_data = full_test_data.drop_duplicates(subset=dup_keys)
     drop_length = old_length - len(full_test_data)
     print(f"Drop {drop_length} duplicates")
-    full_test_data.to_csv(os.path.join(gen_dir, result_dir, "full_test_data.csv"), index=False)
+    full_test_data.to_csv(os.path.join(gen_dir, result_dir, "full_test_data.csv"), index=False,encoding='utf-8' )
 
     failed_test_data = full_test_data.loc[full_test_data['failed_buggy'] == True]
     assert not failed_test_data.isna().any().any()
-    failed_test_data.to_csv(os.path.join(gen_dir, result_dir, "failed_test_data.csv"), index=False)
+    failed_test_data.to_csv(os.path.join(gen_dir, result_dir, "failed_test_data.csv"), index=False,encoding='utf-8')

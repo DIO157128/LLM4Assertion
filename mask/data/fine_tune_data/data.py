@@ -28,8 +28,9 @@ def transTxt4mask(name,path1,path2):
     df = pd.DataFrame()
     df['source'] = processed_s
     df['target'] = processed_t
-    df.to_csv("assert_mask_new_{}.csv".format(name),index=False,escapechar="\\")
+    df.to_csv("assert_mask_new_{}.csv".format(name),index=False,escapechar="\\",encoding='utf-8')
 if __name__ == '__main__':
-    transTxt4mask("train","./NewDataSet/Training/testMethods.txt","./NewDataSet/Training/assertLines.txt")
-    transTxt4mask("val", "./NewDataSet/Validation/testMethods.txt", "./NewDataSet/Validation/assertLines.txt")
-    transTxt4mask("test", "./NewDataSet/Testing/testMethods.txt", "./NewDataSet/Testing/assertLines.txt")
+    # transTxt4mask("train","./NewDataSet/Training/testMethods.txt","./NewDataSet/Training/assertLines.txt")
+    # transTxt4mask("val", "./NewDataSet/Validation/testMethods.txt", "./NewDataSet/Validation/assertLines.txt")
+    # transTxt4mask("test", "./NewDataSet/Testing/testMethods.txt", "./NewDataSet/Testing/assertLines.txt")
+    df = pd.read_csv('assert_mask_new_train.csv')

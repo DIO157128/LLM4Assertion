@@ -237,4 +237,4 @@ if __name__=='__main__':
         results = Parallel(n_jobs=None, prefer='processes')(tqdm(tasks))
     
     test_id_file = os.path.join(corpus_path, "test_ids.csv")
-    metadata_df.to_csv(test_id_file, index=False)
+    metadata_df.to_csv(test_id_file, index=False,encoding='utf-8')

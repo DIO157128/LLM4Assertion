@@ -82,7 +82,7 @@ def main():
         failed_tests.append(item)
     
     failed_tests_df = pandas.DataFrame(failed_tests, columns=["project", "bug_id", "error_msg"])
-    failed_tests_df.to_csv(os.path.join(result_dir, "failed_tests.csv"))
+    failed_tests_df.to_csv(os.path.join(result_dir, "failed_tests.csv"), index=False,encoding='utf-8')
 
 
 if __name__=='__main__':

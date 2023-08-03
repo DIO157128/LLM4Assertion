@@ -3,6 +3,8 @@ import argparse
 import logging
 import os
 import random
+import re
+
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, Dataset, SequentialSampler, RandomSampler
@@ -235,6 +237,9 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
     for batch in bar:
         correct_pred = False
         (input_ids, attention_mask, labels, decoder_input_ids) = [x.squeeze(1).to(args.device) for x in batch]
+        # truth
+        ground_truth = tokenizer.decode(decoder_input_ids[0], skip_special_tokens=False)
+        ground_truth = clean_tokens(ground_truth)
         with torch.no_grad():
             beam_outputs = model.generate(input_ids=input_ids,
                                           attention_mask=attention_mask,
@@ -243,18 +248,14 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
                                           num_return_sequences=args.num_beams,
                                           max_length=args.decoder_block_size)
         beam_outputs = beam_outputs.detach().cpu().tolist()
-        decoder_input_ids = decoder_input_ids.detach().cpu().tolist()
         for single_output in beam_outputs:
             # pred
-            prediction = tokenizer.decode(single_output, skip_special_tokens=False)
+            prediction = tokenizer.decode(single_output, skip_special_tokens=True)
             prediction = clean_tokens(prediction)
-            # truth
-            ground_truth = tokenizer.decode(decoder_input_ids[0], skip_special_tokens=False)
-            ground_truth = clean_tokens(ground_truth)
-            if prediction == ground_truth:
+
+            if re.sub(r'\s', '', prediction) == re.sub(r'\s', '', ground_truth):
                 correct_prediction = prediction
                 correct_pred = True
-                break
         if correct_pred:
             accuracy.append(1)
         else:
@@ -281,10 +282,7 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
         f.write("raw_predictions:\n")
         for i in r:
             f.write(i + "\n")
-    df["raw_predictions"] = raw_predictions
-    df["correctly_predicted"] = accuracy
 
-    df.to_csv(f"../data/raw_predictions/CodeT5/CodeT5_raw_preds.csv")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -369,9 +367,9 @@ def main():
     set_seed(args)
     # tokenizer = RobertaTokenizer.from_pretrained("Salesforce/codet5-base")
     # model = T5ForConditionalGeneration.from_pretrained("Salesforce/codet5-base")
-    tokenizer = RobertaTokenizer.from_pretrained("Salesforce/codet5-base")
-    tokenizer.add_tokens(["<S2SV_StartBug>", "<S2SV_EndBug>", "<S2SV_blank>", "<S2SV_ModStart>", "<S2SV_ModEnd>"])
-    model = T5ForConditionalGeneration.from_pretrained("Salesforce/codet5-base")
+    tokenizer = RobertaTokenizer.from_pretrained("/data/swf/zenodo_replication_package_new/model/CodeT5/codet5")
+    tokenizer.add_tokens(['"<FocalMethod>"','"<TestPrefix>"'])
+    model = T5ForConditionalGeneration.from_pretrained("/data/swf/zenodo_replication_package_new/model/CodeT5/codet5")
     model.resize_token_embeddings(len(tokenizer))
     model.to(device)
     logger.info("Training/evaluation parameters %s", args)

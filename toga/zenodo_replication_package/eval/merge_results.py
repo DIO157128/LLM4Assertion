@@ -38,7 +38,7 @@ def merge_bug_detection(agg_result_dir, fixed_result_dir, out_result_dir):
     if os.path.exists(out_result_dir):
         shutil.rmtree(out_result_dir)
     os.makedirs(out_result_dir)
-    new_df.to_csv(os.path.join(out_result_dir, "bug_detection"), index=False)
+    new_df.to_csv(os.path.join(out_result_dir, "bug_detection"), index=False,encoding='utf-8')
 
 
 def merge_bug_detection_log(agg_result_dir, fixed_result_dir, out_result_dir):

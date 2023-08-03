@@ -192,12 +192,12 @@ if __name__=='__main__':
     test_id_to_name_uniq = aggregate_all_project_tests(all_projects_dir, aggregate_dir, generator, verbose=args.v)
     
     df = pd.DataFrame(test_id_to_name_uniq, columns=["project", "bug_num", "test_id", "unique_test_name"])
-    df.to_csv(os.path.join(CORPUS_DIR, "test_id_to_name_uniq.csv"), index=False)
+    df.to_csv(os.path.join(CORPUS_DIR, "test_id_to_name_uniq.csv"), index=False,encoding='utf-8')
     df["bug_num"] = df["bug_num"].astype(int)
     df["test_id"] = df["test_id"].astype(int)
 
     # build the mapping from test_id to unique_test_name
     test_id_df = pd.read_csv(os.path.join(CORPUS_DIR, "test_ids.csv")) 
     id_to_name_df = test_id_df.merge(df, how="outer", on=["project", "bug_num", "test_id"], validate="one_to_one")
-    id_to_name_df.to_csv(os.path.join(CORPUS_DIR, "uniq_test_names.csv"), index=False)
+    id_to_name_df.to_csv(os.path.join(CORPUS_DIR, "uniq_test_names.csv"), index=False,encoding='utf-8')
     print(time.time() - start_time)
