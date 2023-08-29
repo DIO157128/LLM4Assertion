@@ -14,8 +14,8 @@ def transTxt(name,path1,path2):
     df = pd.DataFrame()
     df['source'] = source
     df['target'] = target
-    df.to_csv("assert_{}.csv".format(name),index=False,escapechar="\\")
+    df.to_csv("assert_{}_old.csv".format(name),index=False,escapechar="\\")
 if __name__ == '__main__':
-    transTxt("train","./NewDataSet/Training/testMethods.txt","./NewDataSet/Training/assertLines.txt")
-    transTxt("val", "./NewDataSet/Validation/testMethods.txt", "./NewDataSet/Validation/assertLines.txt")
-    transTxt("test", "./NewDataSet/Testing/testMethods.txt", "./NewDataSet/Testing/assertLines.txt")
+    transTxt("train","./OldDataSet/Training/testMethods.txt","./OldDataSet/Training/assertLines.txt")
+    transTxt("val", "./OldDataSet/Validation/testMethods.txt", "./OldDataSet/Validation/assertLines.txt")
+    transTxt("test", "./OldDataSet/Testing/testMethods.txt", "./OldDataSet/Testing/assertLines.txt")

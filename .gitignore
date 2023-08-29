@@ -9,3 +9,14 @@
 /mask/data/fine_tune_data/assert_mask_new_test.csv
 /mask/data/fine_tune_data/assert_mask_new_train.csv
 /mask/data/fine_tune_data/assert_mask_new_val.csv
+/ori/data/fine_tune_data/kotlin_data_5000_test.csv
+/ori/data/fine_tune_data/kotlin_data_5000_train.csv
+/ori/data/fine_tune_data/kotlin_data_5000_val.csv
+/ori/data/fine_tune_data/kotlin_data_10000_val.csv
+/ori/data/fine_tune_data/kotlin_data_10000_train.csv
+/ori/data/fine_tune_data/assert_test_new.csv
+/ori/data/fine_tune_data/assert_test_old.csv
+/ori/data/fine_tune_data/assert_train_new.csv
+/ori/data/fine_tune_data/assert_train_old.csv
+/ori/data/fine_tune_data/assert_val_new.csv
+/ori/data/fine_tune_data/assert_val_old.csv

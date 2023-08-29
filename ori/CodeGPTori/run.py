@@ -35,7 +35,7 @@ from torch.utils.data.distributed import DistributedSampler
 from transformers import (AdamW, get_linear_schedule_with_warmup,
                           RobertaConfig, RobertaModel, RobertaTokenizer,
                           GPT2Config, GPT2LMHeadModel, GPT2Tokenizer)
-
+import pandas as pd
 MODEL_CLASSES = {
     'roberta': (RobertaConfig, RobertaModel, RobertaTokenizer),
     'gpt2': (GPT2Config, GPT2LMHeadModel, GPT2Tokenizer),
@@ -61,20 +61,19 @@ class Example(object):
 def read_examples(filename):
     """Read examples from filename."""
     examples = []
-    assert len(filename.split(',')) == 2
-    src_filename = filename.split(',')[0]
-    trg_filename = filename.split(',')[1]
     idx = 0
-    with open(src_filename) as f1, open(trg_filename) as f2:
-        for line1, line2 in zip(f1, f2):
-            examples.append(
-                Example(
-                    idx=idx,
-                    source=line1.strip(),
-                    target=line2.strip(),
-                )
+    df = pd.read_csv(filename,encoding='utf-8')
+    sources = df["source"].tolist()
+    labels = df["target"].tolist()
+    for s,t in zip(sources,labels):
+        examples.append(
+            Example(
+                idx=idx,
+                source=s,
+                target=t,
             )
-            idx += 1
+        )
+        idx += 1
     return examples
 
 
@@ -244,7 +243,7 @@ def test(args, model, tokenizer, device, epoch=0):
                 break
         accs.append(flag)
     xMatch = round(np.mean(accs) * 100, 4)
-    with open(os.path.join(args.output_dir, "test_{}.output".format(xMatch)), 'w') as f:
+    with open(os.path.join(args.output_dir, "CodeGPT_{}_{}.txt".format(args.output_file_name,xMatch)), 'w') as f:
         for ref, gold, a in zip(p, eval_examples, accs):
             f.write("source:\n" + gold.source + "\n")
             f.write("target:\n" + gold.target + "\n")
@@ -335,6 +334,10 @@ def main():
                         help="For distributed training: local_rank")
     parser.add_argument('--seed', type=int, default=42,
                         help="random seed for initialization")
+    parser.add_argument("--output_model_name", default="", type=str,
+                        help="Pretrained config name or path if not the same as model_name")
+    parser.add_argument("--output_file_name", default="", type=str,
+                        help="Pretrained config name or path if not the same as model_name")
     # print arguments
     args = parser.parse_args()
     # make dir if output_dir not exist
@@ -496,14 +499,6 @@ def main():
                 for key in sorted(result.keys()):
                     logger.info("  %s = %s", key, str(result[key]))
                 logger.info("  " + "*" * 20)
-
-                # #save last checkpoint
-                # last_output_dir = os.path.join(args.output_dir, 'checkpoint-last')
-                # if not os.path.exists(last_output_dir):
-                #     os.makedirs(last_output_dir)
-                # model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
-                # output_model_file = os.path.join(last_output_dir, "pytorch_model.bin")
-                # torch.save(model_to_save.state_dict(), output_model_file)
                 if eval_loss < best_loss:
                     logger.info("  Best ppl:%s", round(np.exp(eval_loss), 5))
                     logger.info("  " + "*" * 20)
@@ -514,7 +509,7 @@ def main():
                     if not os.path.exists(output_dir):
                         os.makedirs(output_dir)
                     model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
-                    output_model_file = os.path.join(output_dir, "pytorch_model.bin")
+                    output_model_file = os.path.join(output_dir, args.output_model_name)
                     torch.save(model_to_save.state_dict(), output_model_file)
                 else:
                     not_loss_dec_cnt += 1
@@ -525,20 +520,7 @@ def main():
                         logger.info(early_stop_str)
                         fa.write(early_stop_str)
                         break
-                # dev_bleu, xMatch = eval_bleu(args, dev_dataset, model, device, tokenizer)
-                # logger.info("  %s = %s, %s = %s"%("bleu-4",str(dev_bleu), "xMatch", str(xMatch)))
-                # logger.info("  "+"*"*20)
-                # if dev_bleu > best_bleu:
-                #     logger.info("  Best bleu:%s",dev_bleu)
-                #     logger.info("  "+"*"*20)
-                #     best_bleu=dev_bleu
-                #     # Save best checkpoint for best bleu
-                #     output_dir = os.path.join(args.output_dir, 'checkpoint-best-bleu')
-                #     if not os.path.exists(output_dir):
-                #         os.makedirs(output_dir)
-                #     model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
-                #     output_model_file = os.path.join(output_dir, "pytorch_model.bin")
-                #     torch.save(model_to_save.state_dict(), output_model_file)
+
     if args.do_test:
         if args.do_train:
             model = model_to_save
