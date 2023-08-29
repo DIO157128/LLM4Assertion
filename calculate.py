@@ -157,6 +157,7 @@ def getassertion():
     df.to_csv('statistic/assertion.csv', encoding='utf-8')
 def getassertiontype():
     assertion_types = ['Equals','True','That','NotNull','False','Null','ArrayEquals','Same']
+    assertion_types_with_assert = ['assert'+i for i in assertion_types]
     df = pd.read_csv('./ori/data/fine_tune_data/assert_test_new.csv')
     source = df['source']
     target = df['target']
@@ -205,10 +206,12 @@ def getassertiontype():
         m4 = match4[i]
         m5 = match5[i]
         row = 8
-        for j in range(len(assertion_types)):
-            if 'assert'+assertion_types[j] in t :
-                row=j
-                break
+        n1 = t.split(" ")[0]
+        n2 = t.split(" ")[2]
+        if n1 in assertion_types_with_assert:
+            row = assertion_types_with_assert.index(n1)
+        elif n2 in assertion_types_with_assert:
+            row = assertion_types_with_assert.index(n2)
         m = [m1, m2, m3, m4, m5]
         for j in range(5):
             table_data[j][row][0] += 1
@@ -230,7 +233,7 @@ def getassertiontype():
     print(df)
     df.to_csv('statistic/assertiontype.csv', encoding='utf-8')
 if __name__ == '__main__':
-    getfocaltest()
+    # getfocaltest()
     # getassertion()
-    # getassertiontype()
+    getassertiontype()
 
