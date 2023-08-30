@@ -244,7 +244,7 @@ def test(args, model, tokenizer, device, epoch=0):
                 flag = True
                 break
         accs.append(flag)
-    df = pd.read_csv(args.test_data_file)
+    df = pd.read_csv(args.test_filename)
     df['assert_pred'] = raw_predictions
     if not os.path.exists(args.result_output_dir):
         os.makedirs(args.result_output_dir)
