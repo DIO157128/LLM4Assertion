@@ -232,8 +232,17 @@ def getassertiontype():
     df = pd.DataFrame(table_data, index=index_labels, columns=columns_labels)
     print(df)
     df.to_csv('statistic/assertiontype.csv', encoding='utf-8')
+def accu(path):
+    f_raw_preds = open(path, 'r', encoding="utf-8")
+    preds = f_raw_preds.read().splitlines()
+    preds_acc = []
+    for i in range(len(preds)):
+        if preds[i] == "match:":
+            preds_acc.append(int(preds[i + 1]))
+    print(sum(preds_acc)/len(preds_acc))
 if __name__ == '__main__':
     # getfocaltest()
     # getassertion()
-    getassertiontype()
+    # getassertiontype()
+    accu('CodeT5_mask_test.txt')
 

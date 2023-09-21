@@ -47,13 +47,34 @@ def cal_result(data_dir="data"):
     for src in src_names:
         for result_dir in ["results", "merged_results"]:
             exp_results = []
+            num = 0
             for i in range(1, 11):
                 try:
                     result = cal_one_result(data_dir, src, i, args.model_name, result_dir, scorers)
                     exp_results.append(result)
+                    result_df = read_result_df(data_dir, src, i, args.model_name, result_dir)
+                    condition = result_df.groupby(['project', 'bug_num']).TP.sum() > 0
+
+                    # 使用条件来过滤DataFrame
+                    filtered_df = result_df[
+                        result_df.set_index(['project', 'bug_num']).index.isin(condition[condition].index)]
+                    if not os.path.exists(args.model_name+'_'+result_dir):
+                        os.mkdir(args.model_name+'_'+result_dir)
+                    project = filtered_df['project']
+                    bug_num = filtered_df['bug_num']
+                    remains = []
+                    for p,b in zip(project,bug_num):
+                        remains.append('{}/{}'.format(p,b))
+                    remains = set(remains)
+                    f = open('{}/{}.txt'.format(args.model_name+'_'+result_dir,i),'a')
+                    for r in remains:
+                        f.write(r+'\n')
+                    f.close()
+                    num+=len(remains)
                 except:
                     print(1)
                     continue
+            print(num/10)
             src_df = pd.DataFrame(exp_results)
             all_dfs[src][result_dir] = src_df
             dfs.append(src_df.mean())

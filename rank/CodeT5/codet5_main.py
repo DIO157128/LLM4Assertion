@@ -223,70 +223,7 @@ def evaluate(args, model, tokenizer, eval_dataset, eval_when_training=False):
     return eval_loss
 
 
-def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
-    # build dataloader
-    test_sampler = SequentialSampler(test_dataset)
-    test_dataloader = DataLoader(test_dataset, sampler=test_sampler, batch_size=args.eval_batch_size, num_workers=0)
-    # multi-gpu evaluate
-    # Test!
-    logger.info("***** Running Test *****")
-    logger.info("  Num examples = %d", len(test_dataset))
-    logger.info("  Batch size = %d", args.eval_batch_size)
-    nb_eval_steps = 0
-    model.eval()
-    accuracy = []
-    raw_predictions = []
-    correct_prediction = ""
-    bar = tqdm(test_dataloader, total=len(test_dataloader))
-    if not args.dry:
-        for batch in bar:
-            correct_pred = False
-            (input_ids, attention_mask, labels, decoder_input_ids) = [x.squeeze(1).to(args.device) for x in batch]
-            # truth
-            ground_truth = tokenizer.decode(decoder_input_ids[0], skip_special_tokens=False)
-            ground_truth = clean_tokens(ground_truth)
-            with torch.no_grad():
-                beam_outputs = model.generate(input_ids=input_ids,
-                                              attention_mask=attention_mask,
-                                              do_sample=False,  # disable sampling to test if batching affects output
-                                              num_beams=args.num_beams,
-                                              num_return_sequences=args.num_beams,
-                                              max_length=args.decoder_block_size)
-            beam_outputs = beam_outputs.detach().cpu().tolist()
-            for single_output in beam_outputs:
-                # pred
-                prediction = tokenizer.decode(single_output, skip_special_tokens=True)
-                prediction = clean_tokens(prediction)
-
-                if re.sub(r'\s', '', prediction) == re.sub(r'\s', '', ground_truth):
-                    correct_prediction = prediction
-                    correct_pred = True
-            if correct_pred:
-                accuracy.append(1)
-            else:
-                accuracy.append(0)
-            tem = []
-            for i in range(args.num_beams):
-                raw_pred = tokenizer.decode(beam_outputs[i], skip_special_tokens=False)
-                raw_pred = clean_tokens(raw_pred)
-                tem.append(raw_pred)
-            raw_predictions.append(tem)
-            nb_eval_steps += 1
-            # calculate accuracy
-        test_result = round(sum(accuracy) / len(accuracy), 4)
-        logger.info("***** Test results *****")
-        logger.info(f"Test Accuracy: {str(test_result)}")
-        df = pd.read_csv(args.test_data_file)
-        source = np.array(df["source"]).tolist()
-        target = np.array(df["target"]).tolist()
-        f = open('../data/raw_predictions/CodeT5/CodeT5_{}.txt'.format(args.output_name), 'w', encoding='utf-8')
-        for s, t, r, a in zip(source, target, raw_predictions, accuracy):
-            f.write("source:\n" + s + "\n")
-            f.write("target:\n" + t + "\n")
-            f.write("match:\n" + str(a) + "\n")
-            f.write("raw_predictions:\n")
-            for i in r:
-                f.write(i + "\n")
+def test(args):
     df = pd.read_csv(args.test_data_file)
     source = np.array(df["source"]).tolist()
     target = np.array(df["target"]).tolist()
@@ -436,41 +373,8 @@ def main():
     logger.warning("device: %s, n_gpu: %s", device, args.n_gpu, )
     # Set seed
     set_seed(args)
-    # tokenizer = RobertaTokenizer.from_pretrained("Salesforce/codet5-base")
-    # model = T5ForConditionalGeneration.from_pretrained("Salesforce/codet5-base")
-    tokenizer = RobertaTokenizer.from_pretrained("Salesforce/codet5-base")
-    tokenizer.add_tokens(['"<FocalMethod>"','"<TestPrefix>"'])
-    model = T5ForConditionalGeneration.from_pretrained("Salesforce/codet5-base")
-    model.resize_token_embeddings(len(tokenizer))
-    model.to(device)
-    logger.info("Training/evaluation parameters %s", args)
-    # Training
-    if args.do_train:
-        train_dataset = TextDataset(tokenizer, args, file_type='train')
-        eval_dataset = TextDataset(tokenizer, args, file_type='eval')
-        if args.load_model_from_checkpoint:
-            checkpoint_prefix = f'checkpoint-best-loss/{args.checkpoint_model_name}'
-            output_dir = os.path.join(args.output_dir, '{}'.format(checkpoint_prefix))
-            model.load_state_dict(torch.load(output_dir))
-            model.to(args.device)
-        train(args, train_dataset, model, tokenizer, eval_dataset)
-    # Evaluation
-    results = {}
-    if args.do_eval:
-        checkpoint_prefix = f'checkpoint-best-loss/{args.model_name}'
-        output_dir = os.path.join(args.output_dir, '{}'.format(checkpoint_prefix))
-        model.load_state_dict(torch.load(output_dir))
-        model.to(args.device)
-        eval_dataset = TextDataset(tokenizer, args, file_type='eval')
-        result = evaluate(args, model, tokenizer, eval_dataset)
     if args.do_test:
-        checkpoint_prefix = f'checkpoint-best-loss/{args.model_name}'
-        output_dir = os.path.join(args.output_dir, '{}'.format(checkpoint_prefix))
-        model.load_state_dict(torch.load(output_dir, map_location=args.device))
-        model.to(args.device)
-        test_dataset = TextDataset(tokenizer, args, file_type='test')
-        test(args, model, tokenizer, test_dataset, best_threshold=0.5)
-    return results
+        test(args)
 
 
 if __name__ == "__main__":
