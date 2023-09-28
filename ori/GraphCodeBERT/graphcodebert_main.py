@@ -235,27 +235,18 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
             beam_outputs = model(source_ids=input_ids, source_mask=attention_mask)
             beam_outputs = beam_outputs.detach().cpu().tolist()[0]
         decoder_input_ids = decoder_input_ids.detach().cpu().tolist()
-        for single_output in beam_outputs:
+        for single_output,single_gold in zip(beam_outputs,decoder_input_ids):
             # pred
             prediction = tokenizer.decode(single_output, skip_special_tokens=False)
             prediction = clean_tokens(prediction)
             # truth
-            ground_truth = tokenizer.decode(decoder_input_ids[0], skip_special_tokens=False)
+            ground_truth = tokenizer.decode(single_gold, skip_special_tokens=False)
             ground_truth = clean_tokens(ground_truth)
             if prediction == ground_truth:
-                correct_prediction = prediction
-                correct_pred = True
-                break
-        if correct_pred:
-            accuracy.append(1)
-        else:
-            accuracy.append(0)
-        tem = []
-        for i in range(args.beam_size):
-            raw_pred = tokenizer.decode(beam_outputs[i], skip_special_tokens=False)
-            raw_pred = clean_tokens(raw_pred)
-            tem.append(raw_pred)
-        raw_predictions.append(tem)
+                accuracy.append(1)
+            else:
+                accuracy.append(0)
+            raw_predictions.append(prediction)
     test_result = round(sum(accuracy) / len(accuracy), 4)
     logger.info("***** Test results *****")
     logger.info(f"Test Accuracy: {str(test_result)}")
@@ -268,8 +259,7 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
         f.write("target:\n" + t + "\n")
         f.write("match:\n" + str(a) + "\n")
         f.write("raw_predictions:\n")
-        for i in r:
-            f.write(i + "\n")
+        f.write(r+'\n')
 
 def main():
     parser = argparse.ArgumentParser()

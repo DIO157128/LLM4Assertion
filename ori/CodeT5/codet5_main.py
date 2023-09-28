@@ -243,27 +243,19 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
                                           max_length=args.decoder_block_size)
         beam_outputs = beam_outputs.detach().cpu().tolist()
         decoder_input_ids = decoder_input_ids.detach().cpu().tolist()
-        for single_output in beam_outputs:
+        for single_output,single_gold in zip(beam_outputs,decoder_input_ids):
             # pred
             prediction = tokenizer.decode(single_output, skip_special_tokens=False)
             prediction = clean_tokens(prediction)
             # truth
-            ground_truth = tokenizer.decode(decoder_input_ids[0], skip_special_tokens=False)
+            ground_truth = tokenizer.decode(single_gold, skip_special_tokens=False)
             ground_truth = clean_tokens(ground_truth)
             if prediction == ground_truth:
-                correct_prediction = prediction
-                correct_pred = True
-                break
-        if correct_pred:
-            accuracy.append(1)
-        else:
-            accuracy.append(0)
-        tem = []
-        for i in range(args.num_beams):
-            raw_pred = tokenizer.decode(beam_outputs[i], skip_special_tokens=False)
-            raw_pred = clean_tokens(raw_pred)
-            tem.append(raw_pred)
-        raw_predictions.append(tem)
+                accuracy.append(1)
+            else:
+                accuracy.append(0)
+
+            raw_predictions.append(prediction)
         nb_eval_steps += 1
         # calculate accuracy
     test_result = round(sum(accuracy) / len(accuracy), 4)
@@ -278,12 +270,11 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
         f.write("target:\n" + t + "\n")
         f.write("match:\n" + str(a) + "\n")
         f.write("raw_predictions:\n")
-        for i in r:
-            f.write(i + "\n")
+        f.write(r+'\n')
     df["raw_predictions"] = raw_predictions
     df["correctly_predicted"] = accuracy
 
-    df.to_csv(f"../data/raw_predictions/CodeT5/CodeT5_raw_preds.csv")
+    df.to_csv('../data/raw_predictions/CodeT5/CodeT5_raw_preds.csv')
 
 def main():
     parser = argparse.ArgumentParser()
