@@ -33,6 +33,43 @@ def getStatCsv(type):
     for model in model_bugs_detect:
         df[model] = model_bugs_detect[model]
     df.to_csv('{}.csv'.format(type),index=False)
+def readbugs(path):
+    bugs = []
+    for i in range(1,11):
+        f = open(path+'{}.txt'.format(i),'r')
+        bs = f.read().splitlines()
+        bugs+=bs
+        f.close()
+    print((set(bugs)))
+def readbugsbaseline(path):
+    bugs = []
+    for i in range(1,10):
+        f = open(path+'{}.txt'.format(i),'r')
+        bs = f.read().splitlines()
+        bugs+=bs
+        f.close()
+    print((set(bugs)))
 if __name__ == '__main__':
-    getStatCsv('new')
-    getStatCsv('old')
+    # getStatCsv('new')
+    # getStatCsv('old')
+    readbugs('./new_rq2/CodeGPT_merged_results/')
+    readbugs('./new_rq2/CodeT5_merged_results/')
+    readbugs('./new_rq2/GraphCodeBERT_merged_results/')
+    readbugsbaseline('./new_rq2/baseline_merged_results/')
+    readbugs('./old_rq2/CodeGPT_merged_results/')
+    readbugs('./old_rq2/UnixCoder_merged_results/')
+    readbugs('./old_rq2/CodeBERT_merged_results/')
+    readbugsbaseline('./old_rq2/baseline_merged_results/')
+    # readbugs('./old_rq2/CodeT5_merged_results/')
+    # readbugs('./new_rq2/CodeBERT_merged_results/')
+    # readbugs('./old_rq2/CodeBERT_merged_results/')
+    # readbugs('./new_rq2/GraphCodeBERT_merged_results/')
+    # readbugs('./old_rq2/GraphCodeBERT_merged_results/')
+    # readbugs('./new_rq2/UnixCoder_merged_results/')
+    # readbugs('./old_rq2/UnixCoder_merged_results/')
+    # readbugs('./new_rq2/CodeGPT_merged_results/')
+    # readbugs('./old_rq2/CodeGPT_merged_results/')
+    # readbugs('./new_rq2/baseline_merged_results/')
+    # readbugs('./old_rq2/baseline_merged_results/')
+    # readbugs('./new_rq2/naive_merged_results/')
+    # readbugs('./old_rq2/naive_merged_results/')

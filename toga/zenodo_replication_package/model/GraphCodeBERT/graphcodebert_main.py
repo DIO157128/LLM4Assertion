@@ -212,8 +212,6 @@ def main():
     tokenizer = RobertaTokenizer.from_pretrained("microsoft/graphcodebert-base")
     # build model
     encoder = RobertaModel.from_pretrained("microsoft/graphcodebert-base", config=config)
-    tokenizer.add_tokens(["<S2SV_StartBug>", "<S2SV_EndBug>", "<S2SV_blank>", "<S2SV_ModStart>", "<S2SV_ModEnd>"])
-    encoder.resize_token_embeddings(len(tokenizer))
     decoder_layer = nn.TransformerDecoderLayer(d_model=config.hidden_size, nhead=config.num_attention_heads)
     decoder = nn.TransformerDecoder(decoder_layer, num_layers=6)
     model = Seq2Seq(encoder=encoder, decoder=decoder, config=config,

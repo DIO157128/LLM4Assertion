@@ -14,7 +14,7 @@ then
 fi
 
 OUT_DIR=${DATA_DIR}/${MODEL_NAME}_generated
-D4J_PATH=/data/swf/defects4j/framework/projects
+D4J_PATH=/mnt/sdb/zhaoyuan/zhangquanjun/zy/defects4j/framework/projects
 
 
 python eval/gen_tests_from_metadata.py ${DATA_DIR}/${MODEL_NAME}_oracle_preds.csv ${REG_DIR} ${OUT_DIR} --test_harness data/test_harness --d4j_path ${D4J_PATH} --generator ${GENERATOR}

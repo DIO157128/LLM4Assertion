@@ -126,7 +126,7 @@ def prepare_tests(test_dir: str = "data/evosuite_buggy_regression_all/generated"
 def ex_tests(test_corpus_dir: str = "data/evosuite_buggy_regression_all",
              output_dir: str = "data/evosuite_buggy_tests",
              sample_5projects: bool = False,
-             d4j_path: str = "/data/swf/defects4j",
+             d4j_path: str = "/mnt/sdb/zhaoyuan/zhangquanjun/zy/defects4j",
              njobs: int = None):
     d4j_path = os.path.expanduser(d4j_path)
     extract_tests.main(test_corpus_dir, sample_5projects, d4j_path, output_dir, njobs)

@@ -183,7 +183,7 @@ if __name__=='__main__':
     parser.add_argument('original_test_corpus')
     parser.add_argument('output_dir')
     parser.add_argument('--test_harness', default='test_harness')
-    parser.add_argument('--d4j_path', default='/data/swf/defects4j/framework/projects')
+    parser.add_argument('--d4j_path', default='/mnt/sdb/zhaoyuan/zhangquanjun/zy/defects4j/framework/projects')
     parser.add_argument('-g', '--generator', dest="generator", type=str, default="toga")
     parser.add_argument('-v', action='store_true')
 

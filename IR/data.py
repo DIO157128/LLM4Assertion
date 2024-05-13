@@ -48,8 +48,27 @@ def combine():
     df.to_csv('CodeT5_raw_preds.csv')
     accuracy = df["correctly_predicted"]
     print(sum(accuracy)/len(accuracy))
+def accu(type):
+    # 打开 JSONL 文件
+    searched_assertion = []
+    with open('NewDataset/{}.jsonl'.format(type), 'r', encoding='utf-8') as file:
+        for line in file:
+            # 解析每一行的 JSON 对象
+            data = json.loads(line)
+            # 现在可以使用 data 变量来访问每个 JSON 对象的内容
+            searched_assertion.append(data['src_desc'])
+    df = pd.read_csv('assert_{}_new.csv'.format(type))
+    target = df['target']
+    accu = []
+    assert len(target) == len(searched_assertion)
+    for t, ss in zip(target,searched_assertion):
+        accu.append(t==ss)
+    print(sum(accu)/len(accu))
 if __name__ == '__main__':
     # getIRdata('test')
     # getIRdata('val')
     # getIRdata('train')
-    split('assert_test_old_IR.csv')
+    # split('assert_test_old_IR.csv')
+    accu('train')
+    accu('val')
+    accu('test')

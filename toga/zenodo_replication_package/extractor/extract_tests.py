@@ -495,7 +495,7 @@ if __name__ == "__main__":
     # Since we only have the buggy version in practice, we do not know whether a bug prefix is a bug-reaching test
     # parser.add_argument('--bug_tests_only', action='store_true')
     parser.add_argument('--sample_5projects', action='store_true')
-    parser.add_argument('--d4j_path', default='/data/swf/defects4j/')
+    parser.add_argument('--d4j_path', default='/mnt/sdb/zhaoyuan/zhangquanjun/zy/defects4j/')
     parser.add_argument('-o', '--output_dir', default='.')
     parser.add_argument('-njobs', type=int, default=1)
     args = parser.parse_args()

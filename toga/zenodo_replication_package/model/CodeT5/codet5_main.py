@@ -201,8 +201,6 @@ def main():
     set_seed(args)
     tokenizer = RobertaTokenizer.from_pretrained("Salesforce/codet5-base")
     model = T5ForConditionalGeneration.from_pretrained("Salesforce/codet5-base")
-    tokenizer.add_tokens(["<S2SV_StartBug>", "<S2SV_EndBug>", "<S2SV_blank>", "<S2SV_ModStart>", "<S2SV_ModEnd>"])
-    model.resize_token_embeddings(len(tokenizer))
     model.to(device)
     logger.info("Training/evaluation parameters %s", args)
     # Training

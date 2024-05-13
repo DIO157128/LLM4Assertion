@@ -364,10 +364,8 @@ def main():
     tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path, do_lower_case=args.do_lower_case, \
                                                 bos_token='<s>', eos_token='</s>', pad_token='<pad>',
                                                 unk_token='<|UNKNOWN|>', sep_token='concode_elem_sep')
-    tokenizer.add_tokens(["<S2SV_StartBug>", "<S2SV_EndBug>", "<S2SV_blank>", "<S2SV_ModStart>", "<S2SV_ModEnd>"])
     # budild model
     decoder = model_class.from_pretrained(args.model_name_or_path)
-    decoder.resize_token_embeddings(len(tokenizer))
     update_config(decoder, tokenizer)
     model = Seq2Seq(decoder=decoder, config=decoder.config,
                     beam_size=args.beam_size, max_length=args.max_target_length,

@@ -235,18 +235,27 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
             beam_outputs = model(source_ids=input_ids, source_mask=attention_mask)
             beam_outputs = beam_outputs.detach().cpu().tolist()[0]
         decoder_input_ids = decoder_input_ids.detach().cpu().tolist()
-        for single_output,single_gold in zip(beam_outputs,decoder_input_ids):
+        for single_output in beam_outputs:
             # pred
             prediction = tokenizer.decode(single_output, skip_special_tokens=False)
             prediction = clean_tokens(prediction)
             # truth
-            ground_truth = tokenizer.decode(single_gold, skip_special_tokens=False)
+            ground_truth = tokenizer.decode(decoder_input_ids[0], skip_special_tokens=False)
             ground_truth = clean_tokens(ground_truth)
             if prediction == ground_truth:
-                accuracy.append(1)
-            else:
-                accuracy.append(0)
-            raw_predictions.append(prediction)
+                correct_prediction = prediction
+                correct_pred = True
+                break
+        if correct_pred:
+            accuracy.append(1)
+        else:
+            accuracy.append(0)
+        tem = []
+        for i in range(args.beam_size):
+            raw_pred = tokenizer.decode(beam_outputs[i], skip_special_tokens=False)
+            raw_pred = clean_tokens(raw_pred)
+            tem.append(raw_pred)
+        raw_predictions.append(tem)
     test_result = round(sum(accuracy) / len(accuracy), 4)
     logger.info("***** Test results *****")
     logger.info(f"Test Accuracy: {str(test_result)}")
@@ -259,7 +268,9 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
         f.write("target:\n" + t + "\n")
         f.write("match:\n" + str(a) + "\n")
         f.write("raw_predictions:\n")
-        f.write(r+'\n')
+        for i in r:
+            f.write(i + "\n")
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -353,10 +364,8 @@ def main():
     set_seed(args)
     config = RobertaConfig.from_pretrained("microsoft/graphcodebert-base")
     tokenizer = RobertaTokenizer.from_pretrained("microsoft/graphcodebert-base")
-    tokenizer.add_tokens(["<S2SV_StartBug>", "<S2SV_EndBug>", "<S2SV_blank>", "<S2SV_ModStart>", "<S2SV_ModEnd>"])
     # build model
     encoder = RobertaModel.from_pretrained("microsoft/graphcodebert-base",config=config)
-    encoder.resize_token_embeddings(len(tokenizer))
     decoder_layer = nn.TransformerDecoderLayer(d_model=config.hidden_size, nhead=config.num_attention_heads)
     decoder = nn.TransformerDecoder(decoder_layer, num_layers=6)
     model=Seq2Seq(encoder=encoder,decoder=decoder,config=config,

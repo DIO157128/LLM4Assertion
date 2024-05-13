@@ -39,7 +39,7 @@ class TextDataset(Dataset):
         df = pd.read_csv(file_path)
         sources = df["source"].tolist()
         labels = df["target"].tolist()
-        for i in tqdm(range(len(sources))):
+        for i in tqdm(range(100)):
             self.examples.append(convert_examples_to_features(sources[i], labels[i], tokenizer, args))
         if file_type == "train":
             for example in self.examples[:3]:
@@ -243,21 +243,27 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
                                           max_length=args.decoder_block_size)
         beam_outputs = beam_outputs.detach().cpu().tolist()
         decoder_input_ids = decoder_input_ids.detach().cpu().tolist()
-        for single_output,single_gold in zip(beam_outputs,decoder_input_ids):
+        ground_truth = tokenizer.decode(decoder_input_ids[0], skip_special_tokens=False)
+        ground_truth = clean_tokens(ground_truth)
+        for single_output in beam_outputs:
             # pred
             prediction = tokenizer.decode(single_output, skip_special_tokens=False)
             prediction = clean_tokens(prediction)
             # truth
-            ground_truth = tokenizer.decode(single_gold, skip_special_tokens=False)
-            ground_truth = clean_tokens(ground_truth)
             if prediction == ground_truth:
-                accuracy.append(1)
-            else:
-                accuracy.append(0)
-
-            raw_predictions.append(prediction)
-        nb_eval_steps += 1
-        # calculate accuracy
+                correct_prediction = prediction
+                correct_pred = True
+                break
+        if correct_pred:
+            accuracy.append(1)
+        else:
+            accuracy.append(0)
+        tem = []
+        for i in range(args.num_beams):
+            raw_pred = tokenizer.decode(beam_outputs[i], skip_special_tokens=False)
+            raw_pred = clean_tokens(raw_pred)
+            tem.append(raw_pred)
+        raw_predictions.append(tem)
     test_result = round(sum(accuracy) / len(accuracy), 4)
     logger.info("***** Test results *****")
     logger.info(f"Test Accuracy: {str(test_result)}")
@@ -270,11 +276,9 @@ def test(args, model, tokenizer, test_dataset, best_threshold=0.5):
         f.write("target:\n" + t + "\n")
         f.write("match:\n" + str(a) + "\n")
         f.write("raw_predictions:\n")
-        f.write(r+'\n')
-    df["raw_predictions"] = raw_predictions
-    df["correctly_predicted"] = accuracy
+        for i in r:
+            f.write(i + "\n")
 
-    df.to_csv('../data/raw_predictions/CodeT5/CodeT5_raw_preds.csv')
 
 def main():
     parser = argparse.ArgumentParser()
@@ -360,9 +364,7 @@ def main():
     # tokenizer = RobertaTokenizer.from_pretrained("Salesforce/codet5-base")
     # model = T5ForConditionalGeneration.from_pretrained("Salesforce/codet5-base")
     tokenizer = RobertaTokenizer.from_pretrained("Salesforce/codet5-base")
-    tokenizer.add_tokens(["<S2SV_StartBug>", "<S2SV_EndBug>", "<S2SV_blank>", "<S2SV_ModStart>", "<S2SV_ModEnd>"])
     model = T5ForConditionalGeneration.from_pretrained("Salesforce/codet5-base")
-    model.resize_token_embeddings(len(tokenizer))
     model.to(device)
     logger.info("Training/evaluation parameters %s", args)
     # Training

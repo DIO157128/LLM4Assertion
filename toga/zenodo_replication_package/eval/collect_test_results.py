@@ -16,7 +16,7 @@ empty_test_re = re.compile(r'public void \S+\(\s*\)[^{]*{\s*}')
 extract_trace_exception_re = re.compile(r'\.([\w\d\$]+Exception)', re.DOTALL)
 extract_package_re = re.compile(r'package\s+(\S+);')
 
-d4j_path = "/data/swf/defects4j/"
+d4j_path = "/mnt/sdb/zhaoyuan/zhangquanjun/zy/defects4j"
 
 
 def get_active_bugs(d4j_project_dir):

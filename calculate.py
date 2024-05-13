@@ -241,8 +241,8 @@ def accu(path):
             preds_acc.append(int(preds[i + 1]))
     print(sum(preds_acc)/len(preds_acc))
 if __name__ == '__main__':
-    # getfocaltest()
-    # getassertion()
-    # getassertiontype()
-    accu('CodeT5_mask_test.txt')
+    getfocaltest()
+    getassertion()
+    getassertiontype()
+    # accu('CodeT5_mask_test.txt')
 

@@ -15,11 +15,32 @@ def transTxt(name,path1,path2):
     df['source'] = source
     df['target'] = target
     df.to_csv("assert_{}_old.csv".format(name),index=False,escapechar="\\")
+def calnofocal(path):
+    df = pd.read_csv(path)
+    source =df['source']
+    count = 0
+    fault = 0
+    for s in source:
+        try:
+            spilt_res = s.split('"<FocalMethod>"')
+            if spilt_res[1]=='':
+                count+=1
+        except Exception:
+            fault+=1
+    print(fault)
+    print(count)
+    print(count/len(source))
 if __name__ == '__main__':
     # transTxt("train","./OldDataSet/Training/testMethods.txt","./OldDataSet/Training/assertLines.txt")
     # transTxt("val", "./OldDataSet/Validation/testMethods.txt", "./OldDataSet/Validation/assertLines.txt")
     # transTxt("test", "./OldDataSet/Testing/testMethods.txt", "./OldDataSet/Testing/assertLines.txt")
-    df1 = pd.read_csv('kotlin_data_10000_train.csv')
-    df2 = pd.read_csv('kotlin_data_5000_train.csv')
-    print(len(df1))
-    print(len(df2))
+    # df1 = pd.read_csv('kotlin_data_10000_train.csv')
+    # df2 = pd.read_csv('kotlin_data_5000_train.csv')
+    # print(len(df1))
+    # print(len(df2))
+    # calnofocal('./assert_train_old.csv')
+    # calnofocal('./assert_val_old.csv')
+    # calnofocal('./assert_test_old.csv')
+    df = pd.read_csv('./assert_test_new.csv')
+    source = df['source']
+    print(len(source))
